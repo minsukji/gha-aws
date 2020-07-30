@@ -1,0 +1,42 @@
+name: yet another gha test
+on:
+  push:
+    branches:
+    - master
+
+jobs:
+  job1:
+    name: Job 1
+    runs-on: self-hosted
+    steps:
+    - name: Test 1
+      run: |
+        echo $(hostname)
+        sleep 180
+
+  job2:
+    name: Job 2
+    runs-on: self-hosted
+    steps:
+    - name: Test 2
+      run: |
+        echo $(hostname)
+        sleep 180
+
+  job3:
+    name: Job 3
+    runs-on: self-hosted
+    steps:
+    - name: Test 3
+      run: |
+        echo $(hostname)
+        sleep 180
+
+  Job4:
+    name: Job 4
+    runs-on: self-hosted
+    steps:
+    - name: Test 4
+      run: |
+        echo $(hostname)
+        sleep 180
