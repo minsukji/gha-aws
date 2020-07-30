@@ -1,4 +1,4 @@
-name: yet another gha test
+name: yet another gha test!
 on:
   push:
     branches:
