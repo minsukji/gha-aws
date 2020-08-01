@@ -46,7 +46,7 @@ jobs:
   tests:
     name: Run tests on AWS
     needs: setup
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
     - name: Sleep
