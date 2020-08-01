@@ -29,55 +29,47 @@ jobs:
         aws_secret_key: ${{ secrets.AWS_SECRET_KEY}}
       run: |
         terraform init
-        terraform plan -var="access_key=$aws_access_key" -var="secret_key=$aws_secret_key"
-        cat terraform.tfstate
+        terraform apply -var="access_key=$aws_access_key" -var="secret_key=$aws_secret_key" -auto-approve
 
-#    - name: cache terraform related files
-#      uses: actions/cache@v2
-#      with:
-#        path: |
-#          /usr/local/bin/terraform
-#          .terraform
-#          terraform.tfstate*
-#          main.tf
-#        key: ${{ runner.os }}-terraform
-#
-#    - name: upload terraform related files
-#      uses: actions/upload-artifact@v2
-#      with:
-#        name: main.tf
-#        path: main.tf
+    - name: upload terraform related files
+      uses: actions/upload-artifact@v2
+      with:
+        name: terraform-artifact
+        path: |
+          main.tf
+          variables.tf
+          terraform.tfstate
 
-#  tests:
-#    name: Run tests on AWS
-#    needs: setup
-#    runs-on: ubuntu-latest
-#
-#    steps:
-#    - name: Sleep
-#      run: sleep 180
-#
-#  stop:
-#    # make sure all tests have finished and then destroy all instances
-#    # do i need to check out (i.e. do I need main.tf just to run terraform destroy)?
-#    # probably, since we need the terraform state file from the setup step
-#    # use cached terraform files?
-#    # Again, needs AWS credential
-#    name: Destroy AWS instances
-#    needs: tests
-#    runs-on: ubuntu-latest
-#
-#    steps:
-##    - name: download terraform related files
-##      uses: actions/download-artifact@v2
-##      with:
-##        name: main.tf
-#
-#    - name: destroy AWS instances
-#      env:
-#        aws_access_key_id: ${{ secrets.AWSACCESSKEYID }}
-#        aws_secret_key: $ {{ secrets.AWSSECRETKEY }}
-#      run: |
-#        ls -alh
-#        cat terraform.tfstate
-#        terraform destroy -var='access_key=AKIAIHYXMSCIO2TNNWAA' -var='secret_key=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' -auto-approve
+  tests:
+    name: Run tests on AWS
+    needs: setup
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Sleep
+      run: sleep 180
+
+  stop:
+    # make sure all tests have finished and then destroy all instances
+    # do i need to check out (i.e. do I need main.tf just to run terraform destroy)?
+    # probably, since we need the terraform state file from the setup step
+    # use cached terraform files?
+    # Again, needs AWS credential
+    name: Destroy AWS instances
+    needs: tests
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: download terraform related files
+      uses: actions/download-artifact@v2
+      with:
+        name: terraform-artifact
+
+    - name: destroy AWS instances
+      env:
+        aws_access_key: ${{ secrets.AWS_ACCESS_KEY }}
+        aws_secret_key: ${{ secrets.AWS_SECRET_KEY}}
+      run: |
+        ls -l
+        terraform init
+        terraform destroy -var="access_key=$aws_access_key" -var="secret_key=$aws_secret_key" -auto-approve
