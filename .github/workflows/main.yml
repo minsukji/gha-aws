@@ -5,38 +5,79 @@ on:
     - master
 
 jobs:
-  job1:
-    name: Job 1
-    runs-on: self-hosted
-    steps:
-    - name: Test 1
-      run: |
-        echo $(hostname)
-        sleep 180
+  setup:
+    name: Start and set up AWS instances
+    runs-on: ubuntu-latest
 
-  job2:
-    name: Job 2
-    runs-on: self-hosted
     steps:
-    - name: Test 2
-      run: |
-        echo $(hostname)
-        sleep 180
+    - name: checkout
+      uses: actions/checkout@v2
 
-  job3:
-    name: Job 3
-    runs-on: self-hosted
-    steps:
-    - name: Test 3
+    - name: install terraform
       run: |
-        echo $(hostname)
-        sleep 180
+        url=https://releases.hashicorp.com/terraform/0.12.29/terraform_0.12.29_linux_amd64.zip
+        filename=$(basename $url)
+        curl -LORSsf $url
+        unzip $filename
+        sudo mv terraform /usr/local/bin 
+        rm -f $filename
+        sudo ls -l /usr/local/bin
 
-  Job4:
-    name: Job 4
-    runs-on: self-hosted
-    steps:
-    - name: Test 4
+    - name: start up AWS instances
+      env:
+        aws_access_key_id: ${{ secrets.AWSACCESSKEYID }}
+        aws_secret_key: $ {{ secrets.AWSSECRETKEY }}
       run: |
-        echo $(hostname)
-        sleep 180
+        terraform init
+        terraform apply -var="access_key=${aws_access_key_id}" -var="secret_key=${aws_secret_key}" -auto-approve
+        cat terraform.tfstate
+
+    - name: cache terraform related files
+      uses: actions/cache@v2
+      with:
+        path: |
+          /usr/local/bin/terraform
+          .terraform
+          terraform.tfstate*
+          main.tf
+        key: ${{ runner.os }}-terraform
+
+#    - name: upload terraform related files
+#      uses: actions/upload-artifact@v2
+#      with:
+#        name: main.tf
+#        path: main.tf
+
+  tests:
+    name: Run tests on AWS
+    needs: setup
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Sleep
+      run: sleep 180
+
+  stop:
+    # make sure all tests have finished and then destroy all instances
+    # do i need to check out (i.e. do I need main.tf just to run terraform destroy)?
+    # probably, since we need the terraform state file from the setup step
+    # use cached terraform files?
+    # Again, needs AWS credential
+    name: Destroy AWS instances
+    needs: tests
+    runs-on: ubuntu-latest
+
+    steps:
+#    - name: download terraform related files
+#      uses: actions/download-artifact@v2
+#      with:
+#        name: main.tf
+
+    - name: destroy AWS instances
+      env:
+        aws_access_key_id: ${{ secrets.AWSACCESSKEYID }}
+        aws_secret_key: $ {{ secrets.AWSSECRETKEY }}
+      run: |
+        ls -alh
+        cat terraform.tfstate
+        terraform destroy -var="access_key=${aws_access_key_id}" -var="secret_key=${aws_secret_key}" -auto-approve
