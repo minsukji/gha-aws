@@ -23,6 +23,18 @@ jobs:
         rm -f $filename
         sudo ls -l /usr/local/bin
 
+    - name: investigate directories
+      run: |
+        pwd
+        ls -laF
+        ls -alF /home/
+        ls -alF /home/runner
+        ls -alF /home/runner/work
+        ls -alF /github
+        ls -alF /github/home
+        ls -alF /github/workspace
+        ls -alF /github/workflow
+
     - name: start up AWS instances
       env:
         aws_access_key: ${{ secrets.AWS_ACCESS_KEY }}
