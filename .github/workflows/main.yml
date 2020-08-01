@@ -27,7 +27,11 @@ jobs:
       env:
         aws_access_key_id: ${{ secrets.AWSACCESSKEYID }}
         aws_secret_key: ${{ secrets.AWSSECRETKEY }}
+        dummy: ${{ secrets.DUMMY }}
       run: |
+        echo $dummy
+        echo "$dummy"
+        echo '"$dummy"'
         terraform init
         terraform apply -var='access_key="$aws_access_key_id"' -var='secret_key="$aws_secret_key"' -auto-approve
         cat terraform.tfstate
