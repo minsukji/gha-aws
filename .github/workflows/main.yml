@@ -28,8 +28,11 @@ jobs:
         aws_access_key: ${{ secrets.AWS_ACCESS_KEY }}
         aws_secret_key: ${{ secrets.AWS_SECRET_KEY}}
       run: |
+        pwd
+        ls -l
         terraform init
         terraform apply -var="access_key=$aws_access_key" -var="secret_key=$aws_secret_key" -auto-approve
+        ls -l
 
     - name: upload terraform related files
       uses: actions/upload-artifact@v2
@@ -60,6 +63,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: check terraform files persistence
+      run: |
+        pwd
+        ls -l
+
     - name: download terraform related files
       uses: actions/download-artifact@v2
       with:
