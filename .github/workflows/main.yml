@@ -70,6 +70,7 @@ jobs:
         aws_access_key: ${{ secrets.AWS_ACCESS_KEY }}
         aws_secret_key: ${{ secrets.AWS_SECRET_KEY}}
       run: |
+        sudo ls -l /usr/local/bin
         ls -l
         terraform init
         terraform destroy -var="access_key=$aws_access_key" -var="secret_key=$aws_secret_key" -auto-approve
