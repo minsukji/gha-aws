@@ -26,7 +26,7 @@ jobs:
     - name: start up AWS instances
       env:
         aws_access_key_id: ${{ secrets.AWSACCESSKEYID }}
-        aws_secret_key: $ {{ secrets.AWSSECRETKEY }}
+        aws_secret_key: ${{ secrets.AWSSECRETKEY }}
       run: |
         terraform init
         terraform apply -var='access_key="$aws_access_key_id"' -var='secret_key="$aws_secret_key"' -auto-approve
