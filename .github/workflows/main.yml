@@ -33,6 +33,7 @@ jobs:
         terraform init
         terraform apply -var="access_key=$aws_access_key" -var="secret_key=$aws_secret_key" -auto-approve
         ls -l
+        sleep 180
 
     - name: upload terraform related files
       uses: actions/upload-artifact@v2
@@ -50,7 +51,7 @@ jobs:
 
     steps:
     - name: Sleep
-      run: sleep 180
+      run: sleep 60
 
   stop:
     # make sure all tests have finished and then destroy all instances
